@@ -32,6 +32,7 @@ client.on("messageCreate", (message) => {
   if (message.author.bot) return;
 
   const userID = message.author.id;
+  const userInfo = lastSeenMap.get(userID);
   const now = Date.now();
   const lastSeen = lastSeenMap.get(userID);
 
@@ -81,14 +82,19 @@ client.on("messageCreate", (message) => {
   userMessageData.set(userID, userData);
 
   //!~~~~~~~~~~Welcome back if inactive~~~~~~~~~~~~~
-  if (lastSeen && now - lastSeen > INACTIVITY_THRESHOLD) {
+  if (lastSeen && now - userInfo.lastSeen > INACTIVITY_THRESHOLD) {
     message.reply(
       `Sir Fredrick the Tater welcomes you back, ${message.author.username}! Your fellow spuds have missed you! 🥔`
     );
   }
 
+  const username = message.author.username;
   // 🕒 Update last seen time
-  lastSeenMap.set(userID, now);
+  lastSeenMap.set(userID, {
+    username: username,
+    lastSeen: now,
+  });
+
   fs.writeFileSync(
     LAST_SEEN_FILE,
     JSON.stringify(Object.fromEntries(lastSeenMap), null, 2)
@@ -147,6 +153,12 @@ client.on("messageCreate", (message) => {
     message.channel.send({
       content: "*Hrmm...* 👀", // 🛠️ Fixed typo here
       files: ["./images/villager.jpg"],
+    });
+  }
+  if (message.content.toLowerCase().includes("shhh")) {
+    message.channel.send({
+      content: "*Would be ashame if ...* 👀", // 🛠️ Fixed typo here
+      files: ["./images/creeper.png"],
     });
   }
 });
